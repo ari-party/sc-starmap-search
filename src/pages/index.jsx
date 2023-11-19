@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "@/styles/index.module.css";
 import JSONPretty from "react-json-pretty";
 import monikai from "react-json-pretty/themes/monikai.css";
+import Head from "next/head";
 
 export default function Index() {
 	const [jsonFetched, setJsonFetched] = useState(false);
@@ -66,17 +67,22 @@ export default function Index() {
 	}
 
 	return (
-		<main className={styles.main}>
-			<div className={styles.content}>
-				<input
-					onChange={inputOnChange}
-					className={styles.input}
-					placeholder="Name/Designation/Code"
-					type="text"
-					disabled={!jsonFetched}
-				></input>
-				<JSONPretty data={json} className={styles.result} theme={monikai}></JSONPretty>
-			</div>
-		</main>
+		<>
+			<Head>
+				<title>Starmap Data</title>
+			</Head>
+			<main className={styles.main}>
+				<div className={styles.content}>
+					<input
+						onChange={inputOnChange}
+						className={styles.input}
+						placeholder="Name/Designation/Code"
+						type="text"
+						disabled={!jsonFetched}
+					></input>
+					<JSONPretty data={json} className={styles.result} theme={monikai}></JSONPretty>
+				</div>
+			</main>
+		</>
 	);
 }
