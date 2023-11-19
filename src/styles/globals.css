@@ -1,0 +1,24 @@
+* {
+	margin: 0;
+	padding: 0;
+	border: none;
+	outline: none;
+	box-sizing: border-box;
+}
+
+body {
+	min-height: 100vh;
+	width: 100vw;
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-color: #111;
+	color: #eee;
+}
+
+.__json-pretty__ {
+	background: unset !important;
+}
+
+*::-webkit-scrollbar {
+	display: none;
+}
