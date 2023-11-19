@@ -20,5 +20,11 @@ body {
 }
 
 *::-webkit-scrollbar {
-	display: none;
+	height: 5px;
+	width: 5px;
+}
+
+*::-webkit-scrollbar-thumb:horizontal {
+	background-color: #2f2f2f;
+	border-radius: 2px;
 }
