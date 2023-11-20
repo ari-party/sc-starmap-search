@@ -55,13 +55,13 @@ export default function Index() {
 					setJson([
 						...rawJson.systems.filter(
 							(system) =>
-								system.code?.startsWith(value.toUpperCase()) || system.name?.toLowerCase().startsWith(value.toLowerCase()),
+								system.code?.includes(value.toUpperCase()) || system.name?.toLowerCase().includes(value.toLowerCase()),
 						),
 						...rawJson.objects.filter(
 							(object) =>
-								object.name?.toLowerCase().startsWith(value.toLowerCase()) ||
-								object.designation?.toLowerCase().startsWith(value.toLowerCase()) ||
-								object.code?.startsWith(value.toUpperCase()),
+								object.name?.toLowerCase().includes(value.toLowerCase()) ||
+								object.designation?.toLowerCase().includes(value.toLowerCase()) ||
+								object.code?.includes(value.toUpperCase()),
 						),
 					]);
 				}
