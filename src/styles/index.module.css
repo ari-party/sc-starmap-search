@@ -8,7 +8,7 @@
 }
 
 .content {
-	width: 100%;
+	width: calc(100% - 4rem);
 	max-width: 720px;
 	height: 100%;
 	padding-top: 8rem;
@@ -20,8 +20,8 @@
 	background-color: #171717;
 	border-radius: 4px;
 	color: #f0f0f0;
-	padding: 1.4rem;
-	font-size: 1.4rem;
+	padding: 1rem;
+	font-size: 1.25rem;
 }
 
 .result {
@@ -32,6 +32,6 @@
 	color: #f0f0f0;
 	padding: 1.4rem;
 	font-size: 1rem;
-	margin-top: 2rem;
-	margin-bottom: 4rem;
+	margin-top: 1rem;
+	margin-bottom: 2rem;
 }
