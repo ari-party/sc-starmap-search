@@ -14,14 +14,30 @@
 	padding-top: 8rem;
 }
 
-.input {
+.inputContainer {
+	font-family: Arial, Helvetica, sans-serif;
 	width: 100%;
 	border: 1px solid #373737;
 	background-color: #171717;
 	border-radius: 4px;
+	display: flex;
+	align-items: center;
+}
+
+.input {
+	width: 100%;
+	background-color: transparent;
 	color: #f0f0f0;
 	padding: 1rem;
 	font-size: 1.25rem;
+}
+
+.inputResults {
+	float: right;
+	padding: 1rem;
+	color: #a3a3a3;
+	width: max-content;
+	text-wrap: nowrap;
 }
 
 .result {

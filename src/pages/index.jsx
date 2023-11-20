@@ -17,6 +17,7 @@ export default function Index() {
 	const [json, setJson] = useState({ message: "Hold on! Fetching starmap data." });
 	const [inputDelay, setInputDelay] = useState(false);
 	const [previousValue, setPreviousValue] = useState(null);
+	const [resultText, setResultText] = useState("");
 
 	useEffect(() => {
 		fetch("https://raw.githubusercontent.com/robertsspaceindustries/sc-starmap/main/out/starmap.json")
@@ -52,22 +53,26 @@ export default function Index() {
 				if (value !== previousValue && value.trim() !== "") {
 					setPreviousValue(value);
 
-					setJson([
-						...rawJson.systems.filter(
-							(system) =>
-								system.code?.includes(value.toUpperCase()) || system.name?.toLowerCase().includes(value.toLowerCase()),
-						),
-						...rawJson.objects.filter(
-							(object) =>
-								object.name?.toLowerCase().includes(value.toLowerCase()) ||
-								object.designation?.toLowerCase().includes(value.toLowerCase()) ||
-								object.code?.includes(value.toUpperCase()),
-						),
-					]);
+					setJson(
+						[
+							...rawJson.systems.filter(
+								(system) =>
+									system.code?.includes(value.toUpperCase()) || system.name?.toLowerCase().includes(value.toLowerCase()),
+							),
+							...rawJson.objects.filter(
+								(object) =>
+									object.name?.toLowerCase().includes(value.toLowerCase()) ||
+									object.designation?.toLowerCase().includes(value.toLowerCase()) ||
+									object.code?.includes(value.toUpperCase()),
+							),
+						].filter((v) => typeof v === "object"),
+					);
+
+					if (typeof json?.length === "number") setResultText(`${json.length} result${json.length === 1 ? "" : "s"}`);
 				}
 
 				setInputDelay(false);
-			}, 300);
+			}, 100);
 		}
 
 		return () => clearTimeout(timeout);
@@ -80,13 +85,17 @@ export default function Index() {
 			</Head>
 			<main className={styles.main}>
 				<div className={styles.content}>
-					<input
-						onChange={inputOnChange}
-						className={styles.input}
-						placeholder="Name/Designation/Code"
-						type="text"
-						disabled={!jsonFetched}
-					></input>
+					<div className={styles.inputContainer}>
+						<input
+							onChange={inputOnChange}
+							className={styles.input}
+							placeholder="Name/Designation/Code"
+							type="text"
+							disabled={!jsonFetched}
+						/>
+						<span className={styles.inputResults}>{resultText}</span>
+					</div>
+
 					<JSONPretty data={json} className={styles.result} theme={jsonTheme}></JSONPretty>
 				</div>
 			</main>
