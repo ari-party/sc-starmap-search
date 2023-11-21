@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styles from "@/styles/index.module.css";
 import Head from "next/head";
-import JSONPretty from "react-json-pretty";
+import JSONPretty from "react-json-pretty"; // https://github.com/chenckang/react-json-pretty
 /**
  * Possible themes:
  * - 1337
@@ -10,6 +10,13 @@ import JSONPretty from "react-json-pretty";
  * - monikai
  */
 import jsonTheme from "react-json-pretty/themes/acai.css";
+
+function starmap(location, system) {
+	const params = {};
+	if (location) params.location = location;
+	if (system) params.system = system;
+	return "https://robertsspaceindustries.com/starmap?" + new URLSearchParams(params);
+}
 
 export default function Index() {
 	const [jsonFetched, setJsonFetched] = useState(false);
@@ -23,8 +30,20 @@ export default function Index() {
 		fetch("https://raw.githubusercontent.com/robertsspaceindustries/sc-starmap/main/out/starmap.json")
 			.then(async (res) => {
 				if (res.ok) {
+					const starmapJson = await res.json();
+
+					const systems = starmapJson.systems.map((system) => ({
+						...system,
+						__starmap: starmap(system.code),
+					}));
+
+					const objects = starmapJson.objects.map((object) => ({
+						...object,
+						__starmap: starmap(object.code, object.star_system?.code),
+					}));
+
+					setRawJson({ systems, objects });
 					setJson([]);
-					setRawJson(await res.json());
 					setJsonFetched(true);
 				} else
 					setJson({
@@ -57,7 +76,8 @@ export default function Index() {
 						[
 							...rawJson.systems.filter(
 								(system) =>
-									system.code?.includes(value.toUpperCase()) || system.name?.toLowerCase().includes(value.toLowerCase()),
+									system.code?.includes(value.toUpperCase()) ||
+									system.name?.toLowerCase().includes(value.toLowerCase()),
 							),
 							...rawJson.objects.filter(
 								(object) =>
@@ -68,7 +88,8 @@ export default function Index() {
 						].filter((v) => typeof v === "object"),
 					);
 
-					if (typeof json?.length === "number") setResultText(`${json.length} result${json.length === 1 ? "" : "s"}`);
+					if (typeof json?.length === "number")
+						setResultText(`${json.length} result${json.length === 1 ? "" : "s"}`);
 				}
 
 				setInputDelay(false);
@@ -95,7 +116,6 @@ export default function Index() {
 						/>
 						<span className={styles.inputResults}>{resultText}</span>
 					</div>
-
 					<JSONPretty data={json} className={styles.result} theme={jsonTheme}></JSONPretty>
 				</div>
 			</main>
