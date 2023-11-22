@@ -59,7 +59,7 @@ export default function Index() {
 			);
 	}, [setJsonFetched, setRawJson, setJson]);
 
-	function search(params) {
+	async function search(params) {
 		function e(object, args) {
 			let value = object;
 			if (!value) return null;
@@ -69,45 +69,46 @@ export default function Index() {
 			}
 			return value;
 		}
-		function filterSystem(system) {
-			for (const paramKey of Object.keys(params)) {
-				const { options: paramOptions, value: paramValue } = params[paramKey];
-				if (!paramValue) return false;
 
-				if (paramOptions?.includes("includes")) {
-					if (!e(system, paramKey.split("."))?.toLowerCase()?.includes(paramValue?.toLowerCase()))
-						return false;
-				} else {
-					if (!e(system, paramKey.split("."))?.toLowerCase() === paramValue?.toLowerCase()) return false;
+		const newJson = [
+			...rawJson.systems.filter((system) => {
+				for (const paramKey of Object.keys(params)) {
+					const { options: paramOptions, value: paramValue } = params[paramKey];
+
+					if (paramOptions.includes("includes")) {
+						const realValue = e(system, paramKey.split("."))?.toLowerCase();
+						const includes = realValue.includes(paramValue.toLowerCase());
+						if (!includes) return false;
+					} else {
+						const realValue = e(system, paramKey.split("."))?.toLowerCase();
+						if (realValue !== paramValue.toLowerCase()) return false;
+					}
 				}
-			}
 
-			return false;
-		}
-		function filterObject(object) {
-			for (const paramKey of Object.keys(params)) {
-				const { options: paramOptions, value: paramValue } = params[paramKey];
+				return true;
+			}),
+			...rawJson.objects.filter((object) => {
+				for (const paramKey of Object.keys(params)) {
+					const { options: paramOptions, value: paramValue } = params[paramKey];
 
-				if (paramOptions.includes("includes")) {
-					const realValue = e(object, paramKey.split("."))?.toLowerCase();
-					const includes = realValue.includes(paramValue.toLowerCase());
-					if (!includes) return false;
-				} else {
-					const realValue = e(object, paramKey.split("."))?.toLowerCase();
-					if (realValue !== paramValue.toLowerCase()) return false;
+					if (paramOptions.includes("includes")) {
+						const realValue = e(object, paramKey.split("."))?.toLowerCase();
+						const includes = realValue.includes(paramValue.toLowerCase());
+						if (!includes) return false;
+					} else {
+						const realValue = e(object, paramKey.split("."))?.toLowerCase();
+						if (realValue !== paramValue.toLowerCase()) return false;
+					}
 				}
-			}
 
-			return true;
-		}
+				return true;
+			}),
+		].filter((v) => typeof v === "object");
 
-		setJson(
-			[...rawJson.systems.filter(filterSystem), ...rawJson.objects.filter(filterObject)].filter(
-				(v) => typeof v === "object",
-			),
-		);
+		setJson(newJson);
 
-		if (typeof json?.length === "number") setResultText(`${json.length} result${json.length === 1 ? "" : "s"}`);
+		if (typeof newJson?.length === "number")
+			setResultText(`${newJson.length} result${newJson.length === 1 ? "" : "s"}`);
 	}
 
 	function onSearch(event) {
@@ -117,10 +118,9 @@ export default function Index() {
 			setInputDelay(true);
 
 			// Wait a bit before filtering
-			timeout = setTimeout(() => {
+			timeout = setTimeout(async () => {
 				const input = event.target.value;
 
-				if (!input.trim()) return;
 				if (input !== previousInput) {
 					setPreviousInput(input);
 				}
@@ -149,7 +149,7 @@ export default function Index() {
 
 				if (Object.keys(params).length === 0) return;
 
-				search(params);
+				await search(params);
 
 				setInputDelay(false);
 			}, 100);
