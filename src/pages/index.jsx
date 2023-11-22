@@ -77,7 +77,7 @@ export default function Index() {
 
 					if (paramOptions.includes("includes")) {
 						const realValue = e(system, paramKey.split("."))?.toLowerCase();
-						const includes = realValue.includes(paramValue.toLowerCase());
+						const includes = realValue?.includes(paramValue.toLowerCase());
 						if (!includes) return false;
 					} else {
 						const realValue = e(system, paramKey.split("."))?.toLowerCase();
@@ -93,7 +93,7 @@ export default function Index() {
 
 					if (paramOptions.includes("includes")) {
 						const realValue = e(object, paramKey.split("."))?.toLowerCase();
-						const includes = realValue.includes(paramValue.toLowerCase());
+						const includes = realValue?.includes(paramValue.toLowerCase());
 						if (!includes) return false;
 					} else {
 						const realValue = e(object, paramKey.split("."))?.toLowerCase();
@@ -142,6 +142,7 @@ export default function Index() {
 									.trim()
 									.split("")
 									.map((option) => ({ "~": "includes" }[option.trim()]))
+									.filter((v) => v) // Is not falsy
 							: [],
 						value,
 					};
