@@ -5,6 +5,7 @@
 	overflow-y: auto;
 	display: flex;
 	justify-content: center;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .content {
@@ -14,8 +15,16 @@
 	padding-top: 8rem;
 }
 
+.searchQueryHelp {
+	display: inline-block;
+	font-size: 0.825rem;
+	margin-bottom: 0.5rem;
+	text-decoration: underline;
+	cursor: pointer;
+	color: #a2a2a2;
+}
+
 .inputContainer {
-	font-family: Arial, Helvetica, sans-serif;
 	width: 100%;
 	border: 1px solid #373737;
 	background-color: #171717;

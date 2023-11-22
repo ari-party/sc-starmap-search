@@ -23,7 +23,7 @@ export default function Index() {
 	const [rawJson, setRawJson] = useState(null);
 	const [json, setJson] = useState({ message: "Hold on! Fetching starmap data." });
 	const [inputDelay, setInputDelay] = useState(false);
-	const [previousValue, setPreviousValue] = useState(null);
+	const [previousInput, setPreviousInput] = useState(null);
 	const [resultText, setResultText] = useState("");
 
 	useEffect(() => {
@@ -59,7 +59,58 @@ export default function Index() {
 			);
 	}, [setJsonFetched, setRawJson, setJson]);
 
-	function inputOnChange(event) {
+	function search(params) {
+		function e(object, args) {
+			let value = object;
+			if (!value) return null;
+			for (const key of args) {
+				value = value[key];
+				if (!value) return null;
+			}
+			return value;
+		}
+		function filterSystem(system) {
+			for (const paramKey of Object.keys(params)) {
+				const { options: paramOptions, value: paramValue } = params[paramKey];
+				if (!paramValue) return false;
+
+				if (paramOptions?.includes("includes")) {
+					if (!e(system, paramKey.split("."))?.toLowerCase()?.includes(paramValue?.toLowerCase()))
+						return false;
+				} else {
+					if (!e(system, paramKey.split("."))?.toLowerCase() === paramValue?.toLowerCase()) return false;
+				}
+			}
+
+			return false;
+		}
+		function filterObject(object) {
+			for (const paramKey of Object.keys(params)) {
+				const { options: paramOptions, value: paramValue } = params[paramKey];
+
+				if (paramOptions.includes("includes")) {
+					const realValue = e(object, paramKey.split("."))?.toLowerCase();
+					const includes = realValue.includes(paramValue.toLowerCase());
+					if (!includes) return false;
+				} else {
+					const realValue = e(object, paramKey.split("."))?.toLowerCase();
+					if (realValue !== paramValue.toLowerCase()) return false;
+				}
+			}
+
+			return true;
+		}
+
+		setJson(
+			[...rawJson.systems.filter(filterSystem), ...rawJson.objects.filter(filterObject)].filter(
+				(v) => typeof v === "object",
+			),
+		);
+
+		if (typeof json?.length === "number") setResultText(`${json.length} result${json.length === 1 ? "" : "s"}`);
+	}
+
+	function onSearch(event) {
 		let timeout;
 
 		if (!inputDelay) {
@@ -67,30 +118,38 @@ export default function Index() {
 
 			// Wait a bit before filtering
 			timeout = setTimeout(() => {
-				const value = event.target.value;
+				const input = event.target.value;
 
-				if (value !== previousValue && value.trim() !== "") {
-					setPreviousValue(value);
-
-					setJson(
-						[
-							...rawJson.systems.filter(
-								(system) =>
-									system.code?.includes(value.toUpperCase()) ||
-									system.name?.toLowerCase().includes(value.toLowerCase()),
-							),
-							...rawJson.objects.filter(
-								(object) =>
-									object.name?.toLowerCase().includes(value.toLowerCase()) ||
-									object.designation?.toLowerCase().includes(value.toLowerCase()) ||
-									object.code?.includes(value.toUpperCase()),
-							),
-						].filter((v) => typeof v === "object"),
-					);
-
-					if (typeof json?.length === "number")
-						setResultText(`${json.length} result${json.length === 1 ? "" : "s"}`);
+				if (!input.trim()) return;
+				if (input !== previousInput) {
+					setPreviousInput(input);
 				}
+
+				const params = {};
+
+				for (const match of [
+					...input.matchAll(
+						/(?<key>[\w_.]+)(:|=)(?<options>[~]?)("(?<valueSurrounded>.*?)"|(?<valuePlain>\w+))/g,
+					),
+				]) {
+					const key = match.groups.key;
+					const options = match.groups.options;
+					const value = (match.groups.valueSurrounded ?? match.groups.valuePlain).replaceAll("\\\\", "");
+
+					params[key] = {
+						options: options
+							? options
+									.trim()
+									.split("")
+									.map((option) => ({ "~": "includes" }[option.trim()]))
+							: [],
+						value,
+					};
+				}
+
+				if (Object.keys(params).length === 0) return;
+
+				search(params);
 
 				setInputDelay(false);
 			}, 100);
@@ -106,11 +165,18 @@ export default function Index() {
 			</Head>
 			<main className={styles.main}>
 				<div className={styles.content}>
+					<a
+						className={styles.searchQueryHelp}
+						target="_blank"
+						href="https://github.com/robertsspaceindustries/sc-starmap-search/blob/main/docs/Search_queries.md"
+					>
+						Search query help
+					</a>
 					<div className={styles.inputContainer}>
 						<input
-							onChange={inputOnChange}
+							onChange={onSearch}
 							className={styles.input}
-							placeholder="Name/Designation/Code"
+							placeholder="Search query"
 							type="text"
 							disabled={!jsonFetched}
 						/>
